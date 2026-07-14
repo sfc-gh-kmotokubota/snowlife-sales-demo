@@ -1687,4 +1687,4 @@ SELECT 'Section 10: PPTX/Word/決算 SP 作成完了' AS STATUS;
 -- ============================================================
 -- SECTION 11: 完了
 -- ============================================================
-SELECT 'セットアップ完了！Streamlit と Snowflake Intelligence でデモを開始できます。' AS STATUS;
+SELECT 'セットアップ完了！Streamlit と Snowflake CoWork でデモを開始できます。' AS STATUS;

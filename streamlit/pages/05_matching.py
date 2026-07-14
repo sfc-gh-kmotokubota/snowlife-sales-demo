@@ -322,15 +322,15 @@ with col_chart:
 
 st.markdown("---")
 st.info("""
-💬 **Snowflake Intelligence でさらに深い分析が可能です**  
+💬 **Snowflake CoWork でさらに深い分析が可能です**  
 「KDDIの課題を踏まえて最適な保険商品を根拠付きで提案して」のように自然言語で聞くと、
 面談記録・ニュース・市場データを組み合わせたインタラクティブな分析が行えます。
 """)
 
 col_btn1, col_btn2 = st.columns(2)
 with col_btn1:
-    if st.button("💬 Snowflake Intelligence で詳細分析", type="primary"):
-        st.info(f"Snowflake Intelligence のチャット画面で「{selected_company['COMPANY_NAME']}の最適商品を詳しく説明して」と入力してください")
+    if st.button("💬 Snowflake CoWork で詳細分析", type="primary"):
+        st.info(f"Snowflake CoWork のチャット画面で「{selected_company['COMPANY_NAME']}の最適商品を詳しく説明して」と入力してください")
 with col_btn2:
     if st.button("📄 DPを自動生成 →"):
         st.session_state["proposal_company"] = selected_cid

@@ -94,9 +94,9 @@ uv run --project "$SKILL_DIR" python "$SKILL_DIR/scripts/test_agent.py" \
 
 ---
 
-## Snowflake Intelligence（SI）での使用
+## Snowflake CoWork（SI）での使用
 
-Snowsight の Snowflake Intelligence 画面で以下を設定：
+Snowsight の Snowflake CoWork 画面で以下を設定：
 
 1. **エージェントを選択**: `LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SALES_AGENT`
 2. **System Prompt**: `si_agent/agent_spec.json` の instructions.orchestration を参照

@@ -290,7 +290,7 @@ if "meeting_summary" in st.session_state and st.session_state.get("meeting_compa
                 st.warning(f"保存: {e}")
 
     with btn_col2:
-        if st.button("📤 Snowflake Intelligence に送信"):
+        if st.button("📤 Snowflake CoWork に送信"):
             st.info(f"💡 SI で「{selected_company_name}の今日の面談を振り返り、次回アクションを提案して」と入力してください")
 
     with btn_col3:

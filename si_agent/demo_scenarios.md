@@ -1,4 +1,4 @@
-# Snowflake Intelligence（SI）デモシナリオ集
+# Snowflake CoWork（SI）デモシナリオ集
 
 **対象エージェント**: `LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SALES_AGENT`
 

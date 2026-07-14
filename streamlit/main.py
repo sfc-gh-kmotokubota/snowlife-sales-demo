@@ -110,7 +110,7 @@ with st.sidebar:
 
 # メインページ
 st.title("🏢 スノー生命 法人営業 AI アシスタント")
-st.markdown("### Snowflake Intelligence + Streamlit で営業生産性を劇的に向上")
+st.markdown("### Snowflake CoWork + Streamlit で営業生産性を劇的に向上")
 
 col1, col2, col3, col4 = st.columns(4)
 

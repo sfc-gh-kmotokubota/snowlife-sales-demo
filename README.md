@@ -1,17 +1,17 @@
 # 生命保険会社 法人営業AIアシスタント
-## Snowflake Intelligence + Streamlit で実現する営業DX
+## Snowflake CoWork + Streamlit で実現する営業DX
 
 [![Snowflake](https://img.shields.io/badge/Snowflake-29B5E8?logo=snowflake&logoColor=white)](https://snowflake.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
 
 架空の生命保険会社「スノー生命」の法人営業部向けAIアシスタントデモ。  
-Snowflake Intelligence（Cortex Agent）と Streamlit on Snowflake を組み合わせ、**商談前 → 商談中 → 商談後** の営業活動を全面サポートします。
+Snowflake CoWork（Cortex Agent）と Streamlit on Snowflake を組み合わせ、**商談前 → 商談中 → 商談後** の営業活動を全面サポートします。
 
 ---
 
-## Snowflake Intelligence の使い方 — 商談フェーズ別プロンプト例
+## Snowflake CoWork の使い方 — 商談フェーズ別プロンプト例
 
-Snowflake Intelligence（Cortex Agent）に自然言語で話しかけるだけで、社内データとAIが連動します。以下のプロンプトをそのままコピーして使えます。
+Snowflake CoWork（Cortex Agent）に自然言語で話しかけるだけで、社内データとAIが連動します。以下のプロンプトをそのままコピーして使えます。
 
 ---
 
@@ -110,9 +110,9 @@ KDDI向けに、先ほどの面談内容と健康経営強化のニュースを�
 
 ---
 
-## Snowflake Intelligence が実現する価値
+## Snowflake CoWork が実現する価値
 
-| 従来の作業 | Snowflake Intelligence 活用後 |
+| 従来の作業 | Snowflake CoWork 活用後 |
 |---|---|
 | 複数システムを開いて情報収集（30分〜） | 自然言語1文で即時取得（数秒） |
 | 面談前に過去議事録を手動検索 | 「○○社の面談内容を教えて」で要約取得 |
@@ -137,7 +137,7 @@ KDDI向けに、先ほどの面談内容と健康経営強化のニュースを�
 
 ---
 
-## Snowflake Intelligence（Cortex Agent）
+## Snowflake CoWork（Cortex Agent）
 
 **エージェント**: `LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SALES_AGENT`
 
