@@ -1,0 +1,6 @@
+definition_version: "1"
+streamlit:
+  name: LIFEINSURANCE_SALES_DEMO
+  main_file: main.py
+  query_warehouse: LIFEINSURANCE_DEMO_WH
+  env_file: environment.yml

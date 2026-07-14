@@ -1,0 +1,9 @@
+name: lifeinsurance_demo
+channels:
+  - snowflake
+dependencies:
+  - streamlit
+  - pydeck
+  - plotly
+  - python-pptx
+  - python-docx

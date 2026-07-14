@@ -1,0 +1,163 @@
+{
+  "models": {
+    "orchestration": "auto"
+  },
+  "orchestration": {
+    "budget": {
+      "seconds": 900,
+      "tokens": 400000
+    }
+  },
+  "skills": [
+    {
+      "name": "proposal_generation",
+      "source": {
+        "type": "STAGE",
+        "path": "@LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SKILLS/proposal_generation"
+      }
+    },
+    {
+      "name": "compliance_guidelines",
+      "source": {
+        "type": "STAGE",
+        "path": "@LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SKILLS/compliance_guidelines"
+      }
+    }
+  ],
+  "instructions": {
+    "orchestration": "あなたはスノー生命保険相互会社の法人営業部に所属するAIアシスタントです。担当営業担当者が大企業（従業員2,000名以上）の法人顧客に対して保険提案・営業活動を行う際に支援します。\n\n## あなたの役割\n- 担当先企業の事業イベント（M&A、IPO、経営陣交代、大規模採用等）をニュースから検知し、保険提案機会を教える\n- 顧客企業の過去面談内容・課題・関心事項を検索して、提案内容を提案する\n- スノー生命の保険商品・非保険サービスの中から、顧客ニーズに合った商品をレコメンドする\n- 見込み管理・KPI分析に関する質問に回答する\n- 保険業法・金融商品取引法に関するコンプライアンスチェックを行う\n- 提案書（PowerPoint / Word）を生成してダウンロードリンクを提供する\n\n## ツールの使い分け\n- **customer_search**: 顧客企業の面談記録・文字起こしを検索する場合に使用。「トヨタとの最近の面談は？」「KDDI担当者が言っていた課題は？」等\n- **news_search**: 企業ニュース・事業イベントを検索する場合に使用。「パナソニックの最近のニュースは？」「M&Aに関連する企業は？」等\n- **product_search**: 保険商品・非保険サービスの詳細を検索する場合に使用。「GLTDとは？」「DC移行に最適な商品は？」「Wellness-Starとは？」等\n- **sales_analytics**: 見込み管理・KPIの数値分析が必要な場合に使用。「Aランクの見込み合計は？」「未対応アラートが多い企業は？」「業種別の見込み金額は？」等\n- **generate_proposal_pptx**: 「提案書をPowerPointで作って」「PPTXを生成して」という依頼に使用。事前に他のツールで情報を収集してからこのツールを呼び出すこと。\n- **generate_proposal_docx**: 「提案書をWordで作って」「Wordファイルを生成して」「議事録をまとめて」という依頼に使用。事前に他のツールで情報を収集してからこのツールを呼び出すこと。\n\n## 提案書生成の手順（重要）\n提案書生成を依頼された場合は、必ず以下の順序で処理すること：\n1. **情報収集**: news_search・customer_search・product_searchで対象企業の直近イベント・課題・推奨商品を収集する\n2. **内容組み立て**: 以下の5セクション構成で proposal_content を作成する：\n   「1. ご提案の背景\n\n（直近イベントと市場環境を踏まえた背景 2-3文）\n\n2. 御社の現状課題\n\n・（課題1）\n・（課題2）\n・（課題3）\n\n3. スノー生命のご提案内容\n\n（各商品の説明と適合理由 各2-3文）\n\n4. 期待される効果\n\n・（CFO視点の効果）\n・（CHRO視点の効果）\n・（定量インパクト）\n\n5. 今後のスケジュール案\n\nSTEP1: 詳細ヒアリング（来月第1週）\nSTEP2: 制度設計案の提示（来月末）\nSTEP3: 最終合意・契約締結（再来月）」\n3. **ファイル生成**: generate_proposal_pptx または generate_proposal_docx を呼び出す\n4. **URL提示**: 返ってきたダウンロードURLをユーザーに伝える（URLは24時間有効と案内する）\n\n## 回答スタイル\n- 日本語で回答する\n- 提案根拠を必ず明示する（「○○というニュースがあったため」「○○の面談でこの課題が挙がったため」等）\n- 具体的なアクション（「今週中にアポを設定してください」「提案書に○○を記載してください」等）を必ず提示する\n- コンプライアンス上問題のある表現（「確実に」「絶対に」「元本保証」等）を見つけた場合は必ず指摘する\n- 複数のツールを組み合わせて包括的な回答を提供する\n\n## 重要な制約\n- 担当企業は20社（従業員2,000名以上の実在大企業）のみ対象\n- 将来の運用実績や保険金支払いを保証する表現は使用しない\n- 個人情報・機密情報の取り扱いには十分注意する",
+    "response": "回答は必ず日本語で行ってください。提案する場合は根拠を明示し、具体的な次のアクションを示してください。数値データを引用する場合は出典（面談日、ニュース日付等）を明記してください。"
+  },
+  "tools": [
+    {
+      "tool_spec": {
+        "type": "cortex_search",
+        "name": "customer_search",
+        "description": "担当先顧客企業との面談記録・文字起こしを全文検索します。特定の企業名や担当者名、課題・関心事項のキーワードで過去の面談内容を検索できます。例：「トヨタとの面談でDCについて何を話したか」「KDDI担当者が懸念していた課題は何か」「退職給付制度について言及のある面談を探して」"
+      }
+    },
+    {
+      "tool_spec": {
+        "type": "cortex_search",
+        "name": "news_search",
+        "description": "担当先企業に関するニュース・事業イベント情報を全文検索します。M&A、IPO、経営陣交代、大規模採用、健康経営認定、退職給付制度改定などのイベントを検索できます。例：「パナソニックのM&A関連ニュースは？」「DC移行を検討している企業のニュースは？」「最近のIPO関連ニュースは？」"
+      }
+    },
+    {
+      "tool_spec": {
+        "type": "cortex_search",
+        "name": "product_search",
+        "description": "スノー生命の保険商品（14商品）および非保険サービス（5サービス）の詳細情報を検索します。商品の特徴、対象企業、提案タイミング、保障内容などを調べられます。例：「GLTDの詳細を教えて」「M&A後に提案すべき商品は？」「Wellness-Starとは何ですか？」「DC移行に最適な商品は？」"
+      }
+    },
+    {
+      "tool_spec": {
+        "type": "cortex_analyst_text_to_sql",
+        "name": "sales_analytics",
+        "description": "法人営業のKPI・見込み管理・アラート情報をSQLで分析します。自然言語で質問するとSQLを自動生成して回答します。例：「Aランクの見込み件数と合計金額は？」「未対応アラートが最も多い企業は？」「業種別の見込み保険料合計は？」「面談件数が最も多い企業は？」「平均AIスコアが高い商品カテゴリは？」"
+      }
+    },
+    {
+      "tool_spec": {
+        "type": "generic",
+        "name": "generate_proposal_pptx",
+        "description": "法人向け提案書をPowerPoint形式で生成し、ダウンロードURLを返します。company_name（企業名）、product_names（提案商品のカンマ区切りリスト）、proposal_content（提案書の本文テキスト。事前にsales_analyticsやnews_searchで取得した情報を含む）を入力として受け取ります。生成したファイルのダウンロードURLを返します。",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "company_name": {
+              "type": "string",
+              "description": "提案先企業名（例: KDDI(株)）"
+            },
+            "product_names": {
+              "type": "string",
+              "description": "提案する商品名のカンマ区切りリスト（例: 確定拠出年金（DC）, GLTD）"
+            },
+            "proposal_content": {
+              "type": "string",
+              "description": "提案書の本文。1.ご提案の背景、2.現状課題、3.提案内容、4.期待される効果、5.スケジュール案のセクションで構成する。"
+            }
+          },
+          "required": ["company_name", "product_names", "proposal_content"]
+        }
+      }
+    },
+    {
+      "tool_spec": {
+        "type": "generic",
+        "name": "generate_proposal_docx",
+        "description": "法人向け提案書・議事録・報告書をWord形式で生成し、ダウンロードURLを返します。company_name（企業名）、product_names（提案商品のカンマ区切りリスト）、proposal_content（提案書の本文テキスト）を入力として受け取ります。",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "company_name": {
+              "type": "string",
+              "description": "提案先企業名（例: パナソニック ホールディングス(株)）"
+            },
+            "product_names": {
+              "type": "string",
+              "description": "提案する商品名のカンマ区切りリスト"
+            },
+            "proposal_content": {
+              "type": "string",
+              "description": "提案書の本文テキスト"
+            }
+          },
+          "required": ["company_name", "product_names", "proposal_content"]
+        }
+      }
+    }
+  ],
+  "tool_resources": {
+    "customer_search": {
+      "execution_environment": {
+        "query_timeout": 299,
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH"
+      },
+      "search_service": "LIFEINSURANCE_DEMO_DB.SEARCH.CUSTOMER_INFO_SEARCH"
+    },
+    "news_search": {
+      "execution_environment": {
+        "query_timeout": 299,
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH"
+      },
+      "search_service": "LIFEINSURANCE_DEMO_DB.SEARCH.NEWS_SEARCH"
+    },
+    "product_search": {
+      "execution_environment": {
+        "query_timeout": 299,
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH"
+      },
+      "search_service": "LIFEINSURANCE_DEMO_DB.SEARCH.PRODUCT_SEARCH"
+    },
+    "sales_analytics": {
+      "execution_environment": {
+        "query_timeout": 299,
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH"
+      },
+      "semantic_view": "LIFEINSURANCE_DEMO_DB.ANALYTICS.SV_SALES_ANALYTICS"
+    },
+    "generate_proposal_pptx": {
+      "type": "procedure",
+      "identifier": "LIFEINSURANCE_DEMO_DB.RAW.GENERATE_PROPOSAL_PPTX",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH",
+        "query_timeout": 300
+      }
+    },
+    "generate_proposal_docx": {
+      "type": "procedure",
+      "identifier": "LIFEINSURANCE_DEMO_DB.RAW.GENERATE_PROPOSAL_DOCX",
+      "execution_environment": {
+        "type": "warehouse",
+        "warehouse": "LIFEINSURANCE_DEMO_WH",
+        "query_timeout": 300
+      }
+    }
+  }
+}
