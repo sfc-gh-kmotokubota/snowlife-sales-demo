@@ -18,9 +18,10 @@
 前提: ACCOUNTADMIN を使えること。
 
 ```bash
-snow sql -c <接続名> -f setup.sql
+snow sql -c <接続名> -f setup.sql --enable-templating NONE
 ```
 
+- `--enable-templating NONE` は必須（SQL 内の `&` 等を snow CLI がテンプレートとして解釈し `SQL rendering error` になる）。
 - 所要時間は数分（`GENERATE_DEMO_DATA` はバルクINSERTで20秒前後）。
 - 成功すると、最後に `セットアップ完了！...` が返る。
 - Section 8 では公開 GitHub リポジトリから Streamlit を作成する。PAT は不要。
@@ -43,7 +44,14 @@ SHOW CORTEX SEARCH SERVICES IN DATABASE LIFEINSURANCE_DEMO_DB;
 ### 2-1. 前提チェック（すべて満たさなければ中断してユーザーに報告）
 
 1. ベース（手順1）が作成済み: `SHOW DATABASES LIKE 'LIFEINSURANCE_DEMO_DB'` が1件返る
-2. App Runtime が有効: `SHOW PARAMETERS LIKE 'DEFAULT_SNOWFLAKE_APPS%' IN ACCOUNT` で配置先DB/スキーマ/ウェアハウスが解決できる。解決できない場合は Snowsight の `/settings/account/apps` で有効化が必要と伝える。
+2. アプリの配置先: `SHOW PARAMETERS LIKE 'DEFAULT_SNOWFLAKE_APPS%' IN ACCOUNT` を確認する。
+   - 値が入っていれば、それを 2-3 で使う。
+   - **空の場合**（SE のデモアカウントではよくある）、`snow app deploy` は個人DB `USER$<ユーザー>` にデプロイしてしまう。ユーザーの承認を得てから既定の配置先を作る:
+     ```sql
+     CREATE DATABASE IF NOT EXISTS SNOWFLAKE_APPS;
+     CREATE WAREHOUSE IF NOT EXISTS SNOWFLAKE_APPS_QUERY_WH
+       WAREHOUSE_SIZE = XSMALL AUTO_SUSPEND = 60 AUTO_RESUME = TRUE INITIALLY_SUSPENDED = TRUE;
+     ```
 3. `claude-sonnet-5` が使える（`setup.sql` がクロスリージョン推論を有効化済み）:
    `SELECT SNOWFLAKE.CORTEX.COMPLETE('claude-sonnet-5','ping')`
 4. ローカルに `snow` CLI と `npm` がある（`snow --version`）
@@ -53,10 +61,10 @@ SHOW CORTEX SEARCH SERVICES IN DATABASE LIFEINSURANCE_DEMO_DB;
 **リポジトリ直下**から順に実行する（`02` の PUT は相対パス `app-runtime/snapshot/data/` を使う）。
 
 ```bash
-snow sql -c <接続名> -f app-runtime/sql/01_app_tables.sql     # テーブル定義（setup.sql 版の上位互換）
-snow sql -c <接続名> -f app-runtime/sql/02_load_snapshot.sql  # デモデータ投入
-snow sql -c <接続名> -f app-runtime/sql/03_app_views.sql      # 分析ビュー
-snow sql -c <接続名> -f app-runtime/sql/04_search_services.sql # Cortex Search（setup.sql 由来の2本も再作成）
+snow sql -c <接続名> -f app-runtime/sql/01_app_tables.sql --enable-templating NONE     # テーブル定義（setup.sql 版の上位互換）
+snow sql -c <接続名> -f app-runtime/sql/02_load_snapshot.sql --enable-templating NONE  # デモデータ投入
+snow sql -c <接続名> -f app-runtime/sql/03_app_views.sql --enable-templating NONE      # 分析ビュー
+snow sql -c <接続名> -f app-runtime/sql/04_search_services.sql --enable-templating NONE # Cortex Search（setup.sql 由来の2本も再作成）
 ```
 
 - `01` は RAW/AI の19テーブルを `CREATE OR REPLACE` する。列は setup.sql 版の上位互換なので、Streamlit・Agent・Semantic View はそのまま動く。
@@ -75,7 +83,9 @@ snow sql -c <接続名> -f app-runtime/sql/04_search_services.sql # Cortex Searc
 
 ### 2-4. デプロイ
 
-`app-runtime/` をカレントにして、`snowflake-apps` スキルの deploy 手順に従う（設定のサマリを提示し、**ユーザーの承認を得てから** `snow app deploy`）。完了したら `.snowflakecomputing.app` の URL をユーザーに返す。
+`app-runtime/` をカレントにして、`snowflake-apps` スキルの deploy 手順に従う（設定のサマリを提示し、**ユーザーの承認を得てから** `snow app deploy`）。完了したら `.snowflakecomputing.app` の URL をユーザーに返す。初回はビルドとエンドポイント準備で8分前後かかる。
+
+URL を開くと Snowflake のログイン画面が出る。デプロイしたアカウントのユーザーでログインする。
 
 アプリの所有ロールには、データへのアクセス権が必要（ACCOUNTADMIN 以外でデプロイした場合）:
 

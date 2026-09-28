@@ -18,6 +18,9 @@ entities:
           - .next
           - .git
           - snowflake.log
+          - snapshot
+          - sql
+          - README.md
 
     query_warehouse: SNOWFLAKE_APPS_QUERY_WH
     code_stage: CORP_SALES_COPILOT_CODE
