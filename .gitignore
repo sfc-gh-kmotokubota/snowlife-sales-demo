@@ -1,3 +1,8 @@
 streamlit/output/
 streamlit/output/
 LIFEINSURANCE_DEMO_DB_RAW_LIFEINSURANCE_SALES_AGENT/
+node_modules/
+.next/
+.env*
+snowflake.log
+*.tsbuildinfo

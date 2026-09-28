@@ -1,0 +1,11 @@
+install:
+  commands:
+    - ["npm", "ci", "--include=dev"]
+
+run:
+  command: ["node", ".next/standalone/server.js"]
+
+profile:
+  label: "法人営業支援AI"
+  description: "求人シグナル・CRM・暗黙知を統合し、お客様選定から提案書作成までの法人営業フローを支援します"
+  icon: public/icon.svg

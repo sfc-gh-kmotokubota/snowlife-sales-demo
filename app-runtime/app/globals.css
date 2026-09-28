@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+/*
+ * THEMING
+ * -------
+ * Brand colors are defined as CSS variables below.
+ * To change the color scheme, edit the values in :root.
+ * Light/dark mode is handled automatically via the variable overrides below.
+ */
+
+@layer base {
+  :root {
+    /* Brand tokens — Japanese financial-institution navy */
+    --brand-primary: #1b4f8a;
+    --brand-primary-foreground: #ffffff;
+    --brand-nav-bg: #10305c;
+    --brand-nav-fg: #ffffff;
+    --brand-accent: #29b5e8;
+
+    /* shadcn/ui semantic tokens — slate-based light mode */
+    --background: #ffffff;
+    --foreground: #0f172a;        /* slate-900 */
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+
+    /* Primary wired to brand color */
+    --primary: var(--brand-primary);
+    --primary-foreground: var(--brand-primary-foreground);
+
+    --secondary: #f1f5f9;         /* slate-100 */
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;             /* slate-100 */
+    --muted-foreground: #64748b;  /* slate-500 */
+    --accent: #f1f5f9;            /* slate-100 */
+    --accent-foreground: #0f172a;
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;            /* slate-200 */
+    --input: #e2e8f0;             /* slate-200 */
+    --ring: var(--brand-primary);
+    --radius: 0.625rem;
+  }
+}
+
+@theme inline {
+  /*
+   * TYPOGRAPHY SCALE
+   * ----------------
+   * Tailwind's default scale reads too small on the dense enterprise screens in
+   * this app, so every step is raised by 1px. Overriding the scale here (rather
+   * than the root font-size) keeps spacing and border radii untouched, so only
+   * the text grows and the table density stays intact.
+   */
+  --text-xs: 0.8125rem;   /* 13px (default 12) */
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.9375rem;   /* 15px (default 14) */
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1.0625rem; /* 17px (default 16) */
+  --text-base--line-height: 1.625rem;
+  --text-lg: 1.1875rem;   /* 19px (default 18) */
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.3125rem;   /* 21px (default 20) */
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.5625rem;  /* 25px (default 24) */
+  --text-2xl--line-height: 2.125rem;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans",
+      "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+    font-feature-settings: "palt" 1;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  /* Numerals align in dense tables */
+  .tabular-nums, table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Dense enterprise data table */
+  .data-table {
+    @apply w-full border-collapse text-xs;
+  }
+  .data-table thead th {
+    @apply sticky top-0 z-10 bg-slate-100 px-2.5 py-2 text-left font-semibold
+           text-slate-600 border-b border-slate-300 whitespace-nowrap;
+  }
+  .data-table tbody td {
+    @apply px-2.5 py-2 border-b border-slate-100 align-middle;
+  }
+  .data-table tbody tr:hover {
+    @apply bg-sky-50/60;
+  }
+
+  /* Section card used across every screen */
+  .panel {
+    @apply rounded-lg border border-border bg-card;
+  }
+  .panel-header {
+    @apply flex items-center justify-between gap-2 border-b border-border px-4 py-2.5;
+  }
+  .panel-title {
+    @apply text-sm font-semibold tracking-tight;
+  }
+  .panel-body {
+    @apply p-4;
+  }
+
+  /* Small labelled metric */
+  .metric-label {
+    @apply text-[12px] font-medium text-muted-foreground;
+  }
+  .metric-value {
+    @apply text-xl font-semibold tracking-tight tabular-nums;
+  }
+
+  /* Inline evidence quote from a transcript */
+  .evidence-quote {
+    @apply border-l-2 border-[var(--brand-accent)] bg-sky-50/50 px-3 py-2 text-xs
+           italic text-slate-700;
+  }
+}
