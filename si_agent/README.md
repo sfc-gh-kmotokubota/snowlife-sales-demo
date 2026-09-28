@@ -31,7 +31,7 @@
 ```bash
 # エージェントの新規作成
 SKILL_DIR="/Applications/Cortex Code.app/Contents/Resources/app/resources/snowflake/skills/cortex-code-skills/cortex-agent"
-cd /path/to/lifeinsurance-sales-demo
+cd /path/to/snowlife-sales-demo
 
 uv run --project "$SKILL_DIR" python "$SKILL_DIR/scripts/create_or_alter_agent.py" create \
   --agent-name LIFEINSURANCE_SALES_AGENT \

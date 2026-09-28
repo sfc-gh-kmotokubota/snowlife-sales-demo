@@ -634,26 +634,32 @@ var spkrs=['担当者（顧客）','部長（顧客）','山田（スノー生�
 var pIds=['P001','P002','P003','P004','P005','P006','P007','P008','P009','P010','P011','P012','P013','P014'];
 var q=function(s){return s.replace(/'/g,"''");};
 var nid=1,aid=1,mid=1,trid=1,pid=1,coid=1;
+var BATCH=50,buf={};
+var flushBatch=function(t){var b=buf[t];if(!b||b.rows.length===0)return;snowflake.execute({sqlText:'INSERT INTO '+t+'('+b.cols+')VALUES'+b.rows.join(',')});b.rows=[];};
+var add=function(t,cols,row){if(!buf[t])buf[t]={cols:cols,rows:[]};buf[t].rows.push(row);if(buf[t].rows.length>=BATCH)flushBatch(t);};
+var flushAll=function(){for(var t in buf)flushBatch(t);};
+
 for(var ci=0;ci<companies.length;ci++){var c=companies[ci];
 for(var ni=0;ni<20;ni++){var nidS='NW'+String(nid).padStart(4,'0');nid++;var eti=ni%evTypes.length;var et=evTypes[eti];var rel=rels[eti];var da=Math.floor(Math.random()*365)+1;var d=new Date();d.setDate(d.getDate()-da);var ds=d.toISOString().split('T')[0];var tgt=targets[Math.floor(Math.random()*targets.length)];var per=persons[Math.floor(Math.random()*persons.length)];var amt=Math.floor(Math.random()*500)+50;var emps=Math.floor(Math.random()*3000)+500;
 var hl=q(c.name+'が'+et+'に関する動き: '+tgt);var bd=q(c.name+'の'+et+'関連ニュース。'+per+'が関与。影響額'+amt+'億円規模。従業員'+emps+'名に影響。');var act=q(c.name+'の人事部長・CFOへ今週中にアポを設定。'+et+'に関連する提案書を準備する。');
-snowflake.execute({sqlText:"INSERT INTO T_COMPANY_NEWS(NEWS_ID,COMPANY_ID,HEADLINE,BODY_TEXT,NEWS_DATE,EVENT_TYPE,INSURANCE_RELEVANCE,NEWS_SOURCE)VALUES('"+nidS+"','"+c.id+"','"+q(hl)+"','"+q(bd)+"','"+ds+"','"+et+"','"+rel+"','日経新聞')"});
-if(ni<2&&(rel==='最高'||rel==='高')){var aidS='AL'+String(aid).padStart(4,'0');aid++;snowflake.execute({sqlText:"INSERT INTO T_EVENT_ALERTS(ALERT_ID,COMPANY_ID,DETECTED_AT,EVENT_TYPE,EVENT_SUMMARY,INSURANCE_RELEVANCE,ALERT_REASON,RECOMMENDED_ACTION,URGENCY_DAYS,STATUS)VALUES('"+aidS+"','"+c.id+"',CURRENT_TIMESTAMP(),'"+et+"','"+q(bd)+"','"+rel+"','最高優先度','"+q(act)+"',3,'UNREAD')"});}}}
+add('T_COMPANY_NEWS','NEWS_ID,COMPANY_ID,HEADLINE,BODY_TEXT,NEWS_DATE,EVENT_TYPE,INSURANCE_RELEVANCE,NEWS_SOURCE',"('"+nidS+"','"+c.id+"','"+q(hl)+"','"+q(bd)+"','"+ds+"','"+et+"','"+rel+"','日経新聞')");
+if(ni<2&&(rel==='最高'||rel==='高')){var aidS='AL'+String(aid).padStart(4,'0');aid++;add('T_EVENT_ALERTS','ALERT_ID,COMPANY_ID,DETECTED_AT,EVENT_TYPE,EVENT_SUMMARY,INSURANCE_RELEVANCE,ALERT_REASON,RECOMMENDED_ACTION,URGENCY_DAYS,STATUS',"('"+aidS+"','"+c.id+"',CURRENT_TIMESTAMP(),'"+et+"','"+q(bd)+"','"+rel+"','最高優先度','"+q(act)+"',3,'UNREAD')");}}}
 
 var topics=['退職給付制度','福利厚生','DC移行','GLTD導入','健康経営','保険見直し','新商品提案','契約更新'];
 var txts=['の{t}について議論しました。現在の制度の課題と改善案を検討中です。','としては、{c}様の従業員{e}名の保障充実を最優先に提案いたします。','競合他社の提案も受けているが、スノー生命の商品ラインナップが最も充実していると評価いただいている。','DC移行に関しては、従業員説明会のサポートも含めた包括提案をお願いしたい。','次回は具体的な試算結果を持って再訪問させていただきます。'];
 for(var ci=0;ci<companies.length;ci++){var c=companies[ci];for(var mi=0;mi<8;mi++){var midS='MT'+String(mid).padStart(4,'0');mid++;var da=Math.floor(Math.random()*300)+1;var d=new Date();d.setDate(d.getDate()-da);var ds=d.toISOString().split('T')[0];var mt=mTypes[mi%3];var att=Math.floor(Math.random()*4)+2;var dur=(Math.floor(Math.random()*4)+2)*15;var tp=topics[mi];
-snowflake.execute({sqlText:"INSERT INTO T_MEETINGS(MEETING_ID,COMPANY_ID,SALES_REP_ID,MEETING_DATE,MEETING_TYPE,DURATION_MINUTES,AGENDA,CREATED_AT)VALUES('"+midS+"','"+c.id+"','SR001','"+ds+"','"+mt+"',"+dur+",'"+q(tp)+"',CURRENT_TIMESTAMP())"});
+add('T_MEETINGS','MEETING_ID,COMPANY_ID,SALES_REP_ID,MEETING_DATE,MEETING_TYPE,DURATION_MINUTES,AGENDA,CREATED_AT',"('"+midS+"','"+c.id+"','SR001','"+ds+"','"+mt+"',"+dur+",'"+q(tp)+"',CURRENT_TIMESTAMP())");
 for(var ti=0;ti<5;ti++){var tridS='TR'+String(trid).padStart(5,'0');trid++;var spk=spkrs[ti%spkrs.length];var tx=q(txts[ti].replace('{t}',tp).replace('{c}',c.name).replace('{e}',String(c.emp)));
-snowflake.execute({sqlText:"INSERT INTO T_MEETING_TRANSCRIPTS(TRANSCRIPT_ID,MEETING_ID,START_TIME_SEC,SPEAKER_LABEL,TRANSCRIPT_TEXT,CREATED_AT)VALUES('"+tridS+"','"+midS+"',"+(ti*30)+",'"+spk+"','"+q(tx)+"',CURRENT_TIMESTAMP())"});}}}
+add('T_MEETING_TRANSCRIPTS','TRANSCRIPT_ID,MEETING_ID,START_TIME_SEC,SPEAKER_LABEL,TRANSCRIPT_TEXT,CREATED_AT',"('"+tridS+"','"+midS+"',"+(ti*30)+",'"+spk+"','"+q(tx)+"',CURRENT_TIMESTAMP())");}}}
 
 for(var ci=0;ci<companies.length;ci++){var c=companies[ci];for(var yr=2021;yr<=2025;yr++){var fid='FIN'+String(ci*5+(yr-2021)+1).padStart(4,'0');var rev=Math.floor(Math.random()*5e12)+1e11;var op=Math.floor(rev*(Math.random()*0.15+0.03));var net=Math.floor(op*(Math.random()*0.4+0.4));var ta=Math.floor(rev*(Math.random()*3+1));var eq=Math.floor(ta*(Math.random()*0.3+0.2));var ec=c.emp+Math.floor(Math.random()*2000-1000);var rb=Math.floor(Math.random()*500e8)+10e8;
-snowflake.execute({sqlText:"INSERT INTO T_FINANCIAL_DATA(FINANCIAL_ID,COMPANY_ID,FISCAL_YEAR,REVENUE_JPY,OPERATING_PROFIT,NET_PROFIT,TOTAL_ASSETS,EMPLOYEE_COUNT,CREATED_AT)VALUES('"+fid+"','"+c.id+"',"+yr+","+rev+","+op+","+net+","+ta+","+ec+",CURRENT_TIMESTAMP())"});}}
+add('T_FINANCIAL_DATA','FINANCIAL_ID,COMPANY_ID,FISCAL_YEAR,REVENUE_JPY,OPERATING_PROFIT,NET_PROFIT,TOTAL_ASSETS,EMPLOYEE_COUNT,CREATED_AT',"('"+fid+"','"+c.id+"',"+yr+","+rev+","+op+","+net+","+ta+","+ec+",CURRENT_TIMESTAMP())");}}
 for(var ci=0;ci<companies.length;ci++){var c=companies[ci];var np=c.rank==='A'?4:c.rank==='B'?3:2;for(var pi2=0;pi2<np;pi2++){var pidS='PR'+String(pid).padStart(4,'0');pid++;var pIdx=(ci*3+pi2)%pIds.length;var am=Math.floor(Math.random()*2e9)+1e7;var sc=Math.floor(Math.random()*50)+(c.rank==='A'?50:c.rank==='B'?30:20);if(sc>100)sc=100;var ds2=Math.floor(Math.random()*120);
-snowflake.execute({sqlText:"INSERT INTO T_PROSPECTS(PROSPECT_ID,COMPANY_ID,PRODUCT_ID,CURRENT_RANK,PROSPECT_AMOUNT,AI_SCORE,AI_SCORE_REASON,DAYS_SINCE_CONTACT,LAST_EVENT_TRIGGER,RANKUP_ACTIONS,CREATED_AT,UPDATED_AT)VALUES('"+pidS+"','"+c.id+"','"+pIds[pIdx]+"','"+c.rank+"',"+am+","+sc+",'AIスコア: 事業イベント・面談履歴・市場環境を総合評価',"+ds2+",'事業イベント検知','①詳細ヒアリング ②試算提示 ③提案書作成',CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP())"});}}
-for(var ci=0;ci<companies.length;ci++){var c=companies[ci];var lid='LOC'+String(ci+1).padStart(3,'0');snowflake.execute({sqlText:"INSERT INTO T_COMPANY_LOCATIONS(LOCATION_ID,COMPANY_ID,LOCATION_TYPE,ADDRESS,LATITUDE,LONGITUDE,IS_HEADQUARTERS,CREATED_AT)VALUES('"+lid+"','"+c.id+"','本社','"+q(c.name)+" 本社',"+c.lat+","+c.lon+",TRUE,CURRENT_TIMESTAMP())"});}
+add('T_PROSPECTS','PROSPECT_ID,COMPANY_ID,PRODUCT_ID,CURRENT_RANK,PROSPECT_AMOUNT,AI_SCORE,AI_SCORE_REASON,DAYS_SINCE_CONTACT,LAST_EVENT_TRIGGER,RANKUP_ACTIONS,CREATED_AT,UPDATED_AT',"('"+pidS+"','"+c.id+"','"+pIds[pIdx]+"','"+c.rank+"',"+am+","+sc+",'AIスコア: 事業イベント・面談履歴・市場環境を総合評価',"+ds2+",'事業イベント検知','①詳細ヒアリング ②試算提示 ③提案書作成',CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP())");}}
+for(var ci=0;ci<companies.length;ci++){var c=companies[ci];var lid='LOC'+String(ci+1).padStart(3,'0');add('T_COMPANY_LOCATIONS','LOCATION_ID,COMPANY_ID,LOCATION_TYPE,ADDRESS,LATITUDE,LONGITUDE,IS_HEADQUARTERS,CREATED_AT',"('"+lid+"','"+c.id+"','本社','"+q(c.name)+" 本社',"+c.lat+","+c.lon+",TRUE,CURRENT_TIMESTAMP())");}
 for(var ci=0;ci<companies.length;ci++){var c=companies[ci];var nc=c.rank==='A'?3:c.rank==='B'?2:1;for(var ki=0;ki<nc;ki++){var coidS='CON'+String(coid).padStart(4,'0');coid++;var pIdx2=(ci*2+ki)%pIds.length;var prem=Math.floor(Math.random()*5e8)+1e7;var sy=2020+Math.floor(Math.random()*4);
-snowflake.execute({sqlText:"INSERT INTO T_CONTRACTS(CONTRACT_ID,COMPANY_ID,PRODUCT_ID,CONTRACT_DATE,EXPIRY_DATE,ANNUAL_PREMIUM,STATUS,CREATED_AT)VALUES('"+coidS+"','"+c.id+"','"+pIds[pIdx2]+"','"+sy+"-04-01','"+(sy+3)+"-03-31',"+prem+",'ACTIVE',CURRENT_TIMESTAMP())"});}}
+add('T_CONTRACTS','CONTRACT_ID,COMPANY_ID,PRODUCT_ID,CONTRACT_DATE,EXPIRY_DATE,ANNUAL_PREMIUM,STATUS,CREATED_AT',"('"+coidS+"','"+c.id+"','"+pIds[pIdx2]+"','"+sy+"-04-01','"+(sy+3)+"-03-31',"+prem+",'ACTIVE',CURRENT_TIMESTAMP())");}}
+flushAll();
 return 'デモデータ生成完了: ニュース'+(nid-1)+'件, アラート'+(aid-1)+'件, 面談'+(mid-1)+'件, 文字起こし'+(trid-1)+'件, 財務100件, 見込み'+(pid-1)+'件, 座標20件, 契約'+(coid-1)+'件';
 $$;
 
@@ -1068,6 +1074,10 @@ relationships:
 
 -- ============================================================
 -- SECTION 8: Git Integration + Streamlit
+-- ------------------------------------------------------------
+-- 公開リポジトリのため GIT_CREDENTIALS（PAT）は不要。
+-- ※ フォーク先から配布する場合は API_ALLOWED_PREFIXES と ORIGIN を書き換える。
+-- ※ App Runtime（Next.js 版）はここでは作成しない。app/ 配下の手順を参照。
 -- ============================================================
 USE ROLE ACCOUNTADMIN;
 
@@ -1081,16 +1091,23 @@ CREATE SCHEMA IF NOT EXISTS LIFEINSURANCE_DEMO_DB.PUBLIC;
 
 CREATE OR REPLACE GIT REPOSITORY LIFEINSURANCE_DEMO_DB.PUBLIC.LIFEINSURANCE_REPO
   API_INTEGRATION = GITHUB_INTEGRATION_LIFEINSURANCE
-  ORIGIN = 'https://github.com/sfc-gh-kmotokubota/lifeinsurance-sales-demo.git'
+  ORIGIN = 'https://github.com/sfc-gh-kmotokubota/snowlife-sales-demo.git'
   COMMENT = 'Git repository for Snow Life demo';
 
 ALTER GIT REPOSITORY LIFEINSURANCE_DEMO_DB.PUBLIC.LIFEINSURANCE_REPO FETCH;
 
+-- FROM 構文（ROOT_LOCATION はレガシー）。2026_06 BCR 以降は RUNTIME_NAME 未指定だと
+-- コンテナランタイムになり pyproject.toml が必要になるため、起動の速い
+-- ウェアハウスランタイムを明示する。
 CREATE OR REPLACE STREAMLIT LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SALES_DEMO
-  ROOT_LOCATION = '@LIFEINSURANCE_DEMO_DB.PUBLIC.LIFEINSURANCE_REPO/branches/main/streamlit'
+  FROM '@LIFEINSURANCE_DEMO_DB.PUBLIC.LIFEINSURANCE_REPO/branches/main/streamlit'
   MAIN_FILE = 'main.py'
   QUERY_WAREHOUSE = LIFEINSURANCE_DEMO_WH
+  RUNTIME_NAME = 'SYSTEM$WAREHOUSE_RUNTIME'
+  TITLE = 'スノー生命 法人営業AIアシスタント'
   COMMENT = 'スノー生命 法人営業AIアシスタント Streamlit アプリ';
+
+ALTER STREAMLIT LIFEINSURANCE_DEMO_DB.RAW.LIFEINSURANCE_SALES_DEMO ADD LIVE VERSION FROM LAST;
 
 SELECT 'Section 8: Streamlit デプロイ完了' AS STATUS;
 

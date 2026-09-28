@@ -29,6 +29,9 @@ with col1:
         f"{r['COMPANY_NAME']} [{r['PROSPECT_RANK']}ランク]": r["COMPANY_ID"]
         for _, r in filtered.iterrows()
     }
+    if not company_options:
+        st.warning(f"{rank_filter}ランクの企業はまだ登録されていません。別のランクを選択してください。")
+        st.stop()
     selected_label = st.selectbox("対象企業", list(company_options.keys()))
     selected_cid = company_options[selected_label]
     selected_company = companies[companies["COMPANY_ID"] == selected_cid].iloc[0]

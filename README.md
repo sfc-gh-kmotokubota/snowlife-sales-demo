@@ -180,6 +180,36 @@ KDDI向けに、先ほどの面談内容と健康経営強化のニュースを�
 9. Cortex Agent（7ツール + 3スキル）作成
 10. PPTX/Word/決算サマリー 生成ストアドプロシージャ作成
 
+> `setup.sql` は App Runtime（Next.js 版）を作成しません。Trial アカウントでもそのまま実行できます。
+> Streamlit は公開リポジトリから `FROM` 構文・ウェアハウスランタイムで作成されるため、GitHub PAT は不要です。
+
+---
+
+## App Runtime 版「法人営業支援AI」（任意）
+
+`app-runtime/` に Next.js 版アプリ（お客様選定 → 事前準備 → 商談 → 振り返り → 再訪問）が入っています。
+App Runtime が有効なアカウントでのみ動作します。
+
+**いちばん簡単な方法:** このリポジトリを CoCo Desktop で開き、次のように依頼してください。
+
+> このリポジトリの App Runtime 版を `<接続名>` にデプロイして
+
+CoCo が `AGENTS.md` を読み、前提チェック → データ投入（`app-runtime/sql/01〜04`）→ `snow app deploy` の順に進めます。
+手動で行う場合の手順も `AGENTS.md` の「2. App Runtime 版」にあります。
+
+App Runtime 版は `setup.sql` より多いデータ（文字起こし3,117件・求人516件・暗黙知30件など）を使うため、`app-runtime/snapshot/data/` のスナップショットを投入します。
+
+---
+
+## 変更履歴
+
+- **2026-09-28**
+  - `setup.sql` Section 8: Git リポジトリの `ORIGIN` が旧リポジトリ名を指していたため `clone is not authorized` で失敗していた問題を修正
+  - Streamlit を `ROOT_LOCATION`（レガシー）から `FROM` 構文に変更し、`RUNTIME_NAME = 'SYSTEM$WAREHOUSE_RUNTIME'` と `ADD LIVE VERSION FROM LAST` を追加（2026_06 BCR でデフォルトがコンテナランタイムになったため）
+  - `GENERATE_DEMO_DATA` を50件単位のバルクINSERTに変更（約1,600回 → 35回の実行、15分超 → 20秒前後）
+  - `02_prepare.py`: 該当ランクの企業が0件のときに `KeyError` になる問題を修正
+  - App Runtime 版（`app-runtime/`）と CoCo 向け手順書（`AGENTS.md`）を追加
+
 ---
 
 ## データ構成
@@ -201,9 +231,15 @@ KDDI向けに、先ほどの面談内容と健康経営強化のニュースを�
 ## リポジトリ構造
 
 ```
-lifeinsurance-sales-demo/
+snowlife-sales-demo/
 ├── README.md
-├── setup.sql              # ワンクリックデプロイSQL（全セクション統合）
+├── AGENTS.md              # CoCo 向けデプロイ手順
+├── setup.sql              # ワンクリックデプロイSQL（App Runtime は含まない）
+├── app-runtime/           # App Runtime（Next.js）版アプリ
+│   ├── snowflake.yml      # デプロイ先 DB/スキーマ/WH はアカウントに合わせて変更
+│   ├── app/ components/ lib/
+│   ├── sql/01〜04_*.sql   # アプリ用テーブル・データ投入・ビュー・Search
+│   └── snapshot/data/     # デモデータ（JSON.gz）
 ├── sql/
 │   └── generate_earnings_pptx.sql  # 決算サマリーPPTX生成SP
 ├── streamlit/

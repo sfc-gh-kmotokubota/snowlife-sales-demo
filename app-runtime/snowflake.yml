@@ -1,0 +1,23 @@
+definition_version: "2"
+
+entities:
+  corp_sales_copilot:
+    type: snowflake-app
+    identifier:
+      name: CORP_SALES_COPILOT
+      database: SNOWFLAKE_APPS
+      schema: PUBLIC
+    artifacts:
+      - src: ./*
+        dest: ./
+        ignore:
+          - node_modules
+          - .env*
+          - __pycache__
+          - "*.pyc"
+          - .next
+          - .git
+          - snowflake.log
+
+    query_warehouse: SNOWFLAKE_APPS_QUERY_WH
+    code_stage: CORP_SALES_COPILOT_CODE
